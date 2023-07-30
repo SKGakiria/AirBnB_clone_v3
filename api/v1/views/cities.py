@@ -4,6 +4,7 @@ Module to handle all default RESTFul API actions for City objects.
 """
 from flask import jsonify
 from flask import abort
+from flask import make_response
 from flask import request
 from api.v1.views import app_views
 from models.state import State
@@ -64,16 +65,17 @@ def create_city(state_id):
     if not state:
         abort(404)
     if not request.get_json():
-        abort(400, 'Not a JSON')
-    if 'name' not in request.get_json():
-        abort(400, 'Missing name')
-    new_city = City(name=request.get_json['name'], state_id=state_id)
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+    data = request.get_json()
+    if 'name' not in data:
+        return make_response(jsonify({"error": "Missing name"}), 400)
+    new_city = City(**data, state_id=state_id)
     storage.new(new_city)
     storage.save()
     return jsonify(new_city.to_dict()), 201
 
 
-@app_views.route('/city/<city_id>', methods=['PUT'])
+@app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
 def update_city(city_id):
     """
     Updates the city with the given city_id.
@@ -82,8 +84,13 @@ def update_city(city_id):
     city = storage.get(City, city_id)
     if not city:
         abort(404)
-    if not request.get_json():
-        abort(400, 'Not a JSON')
-    city['name'] = request.get_json['name']
+    data = request.get_json()
+    if not data:
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+
+    ignore_keys = ['id', 'state_id', 'created_at', 'updated_at']
+    for key, value in data.items():
+        if key not in ignore_keys:
+            setattr(city, key, value)
     storage.save()
     return jsonify(city.to_dict()), 200
