@@ -8,6 +8,7 @@ from flask import request
 from api.v1.views import app_views
 from models.state import State
 from models import storage
+from flask import make_response
 
 
 @app_views.route('/states', methods=['GET'], strict_slashes=False)
@@ -47,16 +48,18 @@ def delete_state(state_id):
     return jsonify({}), 200
 
 
-@app_views.route('/states', strict_slashes=False)
+@app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_state():
     """
     Creates a State and returns the new State with status code 201.
     """
     if not request.get_json():
-        abort(400, 'Not a JSON')
-    if 'name' not in request.get_json():
-        abort(400, 'Missing name')
-    new_state = State(name=request.get_json['name'])
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+
+    data = request.get_json()
+    if 'name' not in data:
+        return make_response(jsonify({"error": "Missing name"}), 400)
+    new_state = State(**data)
     storage.new(new_state)
     storage.save()
     return jsonify(new_state.to_dict()), 201
@@ -73,7 +76,8 @@ def update_state(state_id):
     if not state:
         abort(404)
     if not request.get_json():
-        abort(400, 'Not a JSON')
-    state['name'] = request.get_json['name']
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+    data = request.get_json()
+    state.name = data['name']
     storage.save()
     return jsonify(state.to_dict()), 200
