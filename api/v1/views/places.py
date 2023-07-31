@@ -103,7 +103,7 @@ def places_search():
     all_places = [obj for obj in storage.all(Place).values()]
     data = request.get_json()
     if data is None:
-        abort(400, 'Not a JSON')
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
     states = data.get('states')
     if states and len(states) > 0:
         all_cities = storage.all(City)
