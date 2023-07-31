@@ -34,5 +34,5 @@ class User(BaseModel, Base):
         Set password hashed to a MD5 value'
         """
         if name == "password":
-            value = hashlib.md5(value.encode()).hexdigest()
+            value = hashlib.md5(value.encode('utf-8')).hexdigest()
         super().__setattr__(name, value)
