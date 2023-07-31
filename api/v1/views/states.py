@@ -2,13 +2,11 @@
 """
 Module to handle all default RESTFul API actions for State objects.
 """
-from flask import jsonify
-from flask import abort
-from flask import request
+from flask import abort, jsonify, make_response, request
+
 from api.v1.views import app_views
-from models.state import State
 from models import storage
-from flask import make_response
+from models.state import State
 
 
 @app_views.route('/states', methods=['GET'], strict_slashes=False)

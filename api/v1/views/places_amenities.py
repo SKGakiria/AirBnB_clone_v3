@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 """The Place Amenity module"""
-from flask import jsonify, abort, request
+from flask import abort, jsonify, request
+
 from api.v1.views import app_views
 from models import storage
-from models.place import Place
 from models.amenity import Amenity
+from models.place import Place
 
 
 @app_views.route('/places/<place_id>/amenities', methods=['GET'],

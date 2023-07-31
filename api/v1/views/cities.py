@@ -2,14 +2,12 @@
 """
 Module to handle all default RESTFul API actions for City objects.
 """
-from flask import jsonify
-from flask import abort
-from flask import make_response
-from flask import request
+from flask import abort, jsonify, make_response, request
+
 from api.v1.views import app_views
-from models.state import State
-from models.city import City
 from models import storage
+from models.city import City
+from models.state import State
 
 
 @app_views.route('/states/<state_id>/cities', methods=['GET'],
