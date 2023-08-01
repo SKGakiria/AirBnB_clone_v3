@@ -1,5 +1,8 @@
 #!/usr/bin/python3
-"""The Reviews API Module"""
+
+"""
+The Reviews API Module
+"""
 from flask import abort, jsonify, make_response, request
 
 from api.v1.views import app_views
