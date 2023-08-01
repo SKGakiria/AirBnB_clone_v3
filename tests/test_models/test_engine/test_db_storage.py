@@ -96,7 +96,8 @@ class TestDBStorage(unittest.TestCase):
             obj_id = instance.id
             retrieved_obj = models.storage.get(class_obj, obj_id)
             self.assertEqual(instance, retrieved_obj)
-            non_existent_obj = models.storage.get(class_obj, "non_existent_id")
+            non_existent_obj = models.storage.get(
+                class_obj, "non_existent_id")
             self.assertIsNone(non_existent_obj)
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
