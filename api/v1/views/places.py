@@ -98,46 +98,48 @@ def update_place(place_id):
     return (jsonify(place.to_dict()), 200)
 
 
-@app_views.route('/places_search', methods=['POST'], strict_slashes=True)
+@app_views.route('/places_search', methods=['POST'], strict_slashes=False)
 def places_search():
     """
-    Retrieves all Place objects depending on the JSON in the body request.
+    Retrieves all Place objects depending on the JSON in the request body.
     """
     all_places = [obj for obj in storage.all(Place).values()]
     data = request.get_json()
+
     if data is None:
         return make_response(jsonify({"error": "Not a JSON"}), 400)
-    states = data.get('states')
-    if states and len(states) > 0:
+
+    states = data.get('states', [])
+    cities = data.get('cities', [])
+    amenities = data.get('amenities', [])
+
+    state_cities = set()
+    if states:
         all_cities = storage.all(City)
-        state_cities = set([city.id for city in all_cities.values()
-                            if city.state_id in states])
-    else:
-        state_cities = set()
-    cities = data.get('cities')
-    if cities and len(cities) > 0:
-        cities = set([
-            c_id for c_id in cities if storage.get(City, c_id)])
-        state_cities = state_cities.union(cities)
-    amenities = data.get('amenities')
-    if len(state_cities) > 0:
+        state_cities.update(c.id for c in all_cities.values() if
+                            c.state_id in states)
+
+    if cities:
+        city_objs = {c.id: c for c in storage.all(City).values() if
+                     c.id in cities}
+        state_cities.update(city_objs.keys())
+
+    if state_cities:
         all_places = [p for p in all_places if p.city_id in state_cities]
-    elif amenities is None or len(amenities) == 0:
-        result = [place.to_dict() for place in all_places]
-        return jsonify(result)
-    places_amenities = []
-    if amenities and len(amenities) > 0:
-        amenities = set([
-            a_id for a_id in amenities if storage.get(Amenity, a_id)])
-        for p in all_places:
-            p_amenities = None
-            if getenv('HBNB_TYPE_STORAGE') == 'db' and p.amenities:
-                p_amenities = [a.id for a in p.amenities]
-            elif len(p.amenities) > 0:
-                p_amenities = p.amenities
-            if p_amenities and all([a in p_amenities for a in amenities]):
-                places_amenities.append(p)
+    elif not amenities:
+        return jsonify([place.to_dict() for place in all_places])
+
+    if amenities:
+        amenity_objs = {a.id: a for a in storage.all(Amenity).values() if
+                        a.id in amenities}
+        places_amenities = []
+        for place in all_places:
+            place_amenities = [a.id for a in place.amenities]
+            if all(amenity_id in place_amenities for amenity_id in amenities):
+                places_amenities.append(place)
     else:
         places_amenities = all_places
+
+    # Return the final result
     result = [place.to_dict() for place in places_amenities]
     return jsonify(result)
