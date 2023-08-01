@@ -4,12 +4,14 @@ from os import getenv
 
 from flask import Flask, jsonify, make_response
 from flask_cors import CORS
+from flasgger import Swagger
 
 from api.v1.views import app_views
 from models import storage
 
 app = Flask(__name__)
-app.register_blueprint(app_views, url_prefix="/api/v1")
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+app.register_blueprint(app_views)
 cors = CORS(app, resources={r"/api/*": {"origins": "0.0.0.0"}})
 
 
@@ -22,9 +24,17 @@ def not_found(error):
 
 
 @app.teardown_appcontext
-def close_storage(exc):
+def close_storage(obj):
     """Method to close the storage"""
     storage.close()
+
+
+app.config['SWAGGER'] = {
+    'title': 'AirBnB clone - RESTful API',
+    'description': 'Python back-end API webserver Flask',
+    'uiversion': 3}
+
+Swagger(app)
 
 
 if __name__ == "__main__":
