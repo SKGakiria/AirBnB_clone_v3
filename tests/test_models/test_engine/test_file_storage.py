@@ -147,7 +147,7 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_count_non_existent_class(self):
         """Test the count method with non-existent class argument"""
-        non_existent_count = models.storage.count(NonExistentClass)
+        non_existent_count = models.storage.count('NonExistentClass')
         self.assertEqual(non_existent_count, 0)
 
 
