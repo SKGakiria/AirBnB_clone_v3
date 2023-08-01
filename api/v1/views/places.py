@@ -27,7 +27,6 @@ def get_places_by_city(city_id):
 
 
 @app_views.route('/places/<place_id>', methods=['GET'], strict_slashes=False)
-@swag_from('documentation/places/get_id.yml', methods=['GET'])
 def get_place(place_id):
     """Retrieves Place object"""
     place = storage.get(Place, place_id)
