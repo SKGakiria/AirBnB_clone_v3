@@ -68,7 +68,8 @@ def create_review(place_id):
     if not user:
         abort(404)
 
-    review = Review(place_id=place_id, **data)
+    data['place_id'] = place_id
+    review = Review(**data)
     review.save()
     return (jsonify(review.to_dict()), 201)
 
