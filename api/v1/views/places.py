@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 """The Places Module"""
-from os import getenv
-
 from flask import abort, jsonify, make_response, request
 
 from api.v1.views import app_views
